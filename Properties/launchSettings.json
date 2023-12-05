@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "GLS_Przemyslaw_Kuczynski": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7219",
+      "launchBrowser": false
+    }
+  }
+}
