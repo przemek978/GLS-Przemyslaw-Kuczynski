@@ -1,16 +1,23 @@
-using System;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace GLS_Przemyslaw_Kuczynski
 {
-    public class TimeTrigger
+    public class TimerTrigger
     {
-        [FunctionName("TimeTrigger")]
-        public void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
+        private readonly ILogger _logger;
+
+        public TimerTrigger(ILoggerFactory loggerFactory)
         {
-            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+            _logger = loggerFactory.CreateLogger<HttpTrigger>();
         }
+
+        [Function("TimerTrigger")]
+        public void Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
+        {
+            //_glsService.SynchronizePackages();
+        }
+
+
     }
 }
