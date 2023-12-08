@@ -5,6 +5,7 @@ using GlsAPI.Repository;
 using GlsAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.Design;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -28,6 +29,8 @@ builder.Services.AddDbContext<DBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection")), ServiceLifetime.Transient);
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 
 builder.Services.AddSwaggerGen();
 
@@ -40,12 +43,36 @@ using (var scope = app.Services.CreateScope())
     {
         var dbContext = services.GetRequiredService<DBContext>();
         dbContext.Database.EnsureCreated();
-        if (!dbContext.Users.Any())
+        if (!dbContext.Customers.Any() && !dbContext.Users.Any())
         {
             var newUser = new User { UserName = "User1", Password = "User123#" };
+            var customers = new List<Customer>{
+                new Customer
+                {
+                    Name1 = "Jan",
+                    Country = "PL",
+                    ZipCode = "00-001",
+                    City = "Warszawa",
+                    Street = "ul. Prosta",
+                    Phone = "123-456-789",
+                    Contact = "Jan Kowalski"
+                },
+                new Customer
+                {
+                    Name1 = "Anna",
+                    Country = "PL",
+                    ZipCode = "50-001",
+                    City = "Wroc³aw",
+                    Street = "ul. Krótka",
+                    Phone = "987-654-321",
+                    Contact = "Anna Nowak"
+                }
+            };
             newUser.PasswordHash();
             dbContext.Users.Add(newUser);
+            dbContext.Customers.AddRange(customers);
             dbContext.SaveChanges();
+
         }
         if (!dbContext.Errors.Any())
         {
@@ -60,15 +87,52 @@ using (var scope = app.Services.CreateScope())
                 new Error{Name ="err_sess_not_found", Message="Identyfikator sesji nie zosta³ znaleziony. Uzyskanie nowego identyfikatora mo¿liwe jest tylko za pomoc¹ funkcji adeLogin, adeLoginIntegrator lub adeLoginByLocalizationCode"},
                 new Error{Name ="err_sess_expired", Message="Wa¿noœæ identyfikatora sesji wygas³a. Aplikacja kliencka próbowa³a komunikowaæ siê z systemem po up³ywie czasu okreœlonym w Wytycznych dla aplikacji."},
                 new Error{Name ="err_user_insufficient_permissions", Message="U¿ytkownik nie posiada odpowiednich uprawnieñ, aby wykonaæ podan¹ metodê."},
+                //ConsignsIds
+                new Error{Name ="err_id_start_invalid", Message="Identyfikator startowy jest niepoprawny."},
+                //Consign
+                new Error{Name ="err_cons_not_found", Message="Nie znaleziono przesy³ki."},
+
             };
             dbContext.Errors.AddRange(errors);
+            dbContext.SaveChanges();
+        }
+        if (!dbContext.PackageStatuses.Any())
+        {
+            var statuses = new List<PackageStatus>
+            {
+                new PackageStatus{ Name="Zarejestrowana"},
+                new PackageStatus{ Name="Przechowywana"},
+                new PackageStatus{ Name="Wydana do dorêczenia"},
+                new PackageStatus{ Name="Dostarczona"},
+            };
+            dbContext.PackageStatuses.AddRange(statuses);
+            dbContext.SaveChanges();
+        }
+        if (dbContext.Customers.Any() && !dbContext.Packages.Any() && dbContext.PackageStatuses.Any())
+        {  
+            for (int i = 0; i < 5; i++)
+            {
+                var package = new Package
+                {
+                    Id = 123450 + i,
+                    References = $"Ref{i + 1}",
+                    Notes = $"Note{i + 1}",
+                    Quantity = 1,
+                    Weight = 10.5f + i,
+                    Date = DateTime.Now.AddDays(-2),
+                    SenderId = (i % 2)+1,
+                    RecipientId = ((i +1) % 2) + 1,
+                    StatusId = 2
+                };
+                dbContext.Packages.Add(package);
+            }
             dbContext.SaveChanges();
         }
     }
     catch (Exception ex)
     {
 
-    }
+}
 }
 
 // Configure the HTTP request pipeline.

@@ -1,6 +1,6 @@
 ﻿using GlsAPI.Interfaces;
 using GlsAPI.Models.Responses;
-using Microsoft.AspNetCore.Http;
+using GlsAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GlsAPI.Controllers
@@ -15,8 +15,8 @@ namespace GlsAPI.Controllers
             _userService = userService;
         }
 
-        [HttpPost("adeLogin")]
-        public AuthResponse Login(string username, string password)
+        [HttpPost(Endpoints.Login)]
+        public ActionResult<AuthResponse> Login(string username, string password)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace GlsAPI.Controllers
                 {
                     response = _userService.Login(username, password);
                 }
-                return response;
+                return Ok(response);
 
             }
             catch (Exception ex)
@@ -34,8 +34,8 @@ namespace GlsAPI.Controllers
             }
         }
 
-        [HttpPost("adeLogout")]
-        public AuthResponse Logout(Guid session)
+        [HttpPost(Endpoints.Logout)]
+        public ActionResult<AuthResponse> Logout(Guid session)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace GlsAPI.Controllers
                 {
                     response = _userService.Logout(session);
                 }
-                return response;
+                return Ok(response);
 
             }
             catch (Exception ex)
