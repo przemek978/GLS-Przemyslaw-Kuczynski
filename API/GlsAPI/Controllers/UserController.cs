@@ -1,4 +1,5 @@
 ﻿using GlsAPI.Interfaces;
+using GlsAPI.Models.Requests;
 using GlsAPI.Models.Responses;
 using GlsAPI.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -16,14 +17,14 @@ namespace GlsAPI.Controllers
         }
 
         [HttpPost(Endpoints.Login)]
-        public ActionResult<AuthResponse> Login(string username, string password)
+        public ActionResult<AuthResponse> Login([FromBody]LoginRequest req)
         {
             try
             {
                 AuthResponse response = new();
                 if (ModelState.IsValid)
                 {
-                    response = _userService.Login(username, password);
+                    response = _userService.Login(req.username, req.password);
                 }
                 return Ok(response);
 

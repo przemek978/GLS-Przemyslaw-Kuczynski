@@ -1,5 +1,6 @@
 ﻿using GlsAPI.Interfaces;
 using GlsAPI.Models;
+using GlsAPI.Models.Requests;
 using GlsAPI.Models.Responses;
 using GlsAPI.Services;
 using GlsAPI.Utils;
@@ -19,7 +20,7 @@ namespace GlsAPI.Controllers
         }
 
         [HttpGet(Endpoints.GetConsignIDs)]
-        public ActionResult<PackagesResponse> GetConsignIDs(Guid session,int id_start)
+        public ActionResult<PackagesResponse> GetConsignIDs(Guid session, int id_start)
         {
             try
             {
@@ -28,7 +29,14 @@ namespace GlsAPI.Controllers
                 {
                     response = _packageService.GetPackagesIDs(session, id_start);
                 }
-                return Ok(response);
+                if (response.Error == null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
 
             }
             catch (Exception ex)
@@ -47,7 +55,14 @@ namespace GlsAPI.Controllers
                 {
                     response = _packageService.GetPackage(session, id);
                 }
-                return Ok(response);
+                if (response.Error == null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
 
             }
             catch (Exception ex)
@@ -57,16 +72,23 @@ namespace GlsAPI.Controllers
         }
 
         [HttpPost(Endpoints.GetConsignLabels)]
-        public ActionResult<LabelResponse> GetConsignLabels(Guid sessionId, List<int> packageIds, string mode)
+        public ActionResult<LabelResponse> GetConsignLabels([FromBody]LabelsRequest req)
         {
             try
             {
                 LabelResponse response = new();
                 if (ModelState.IsValid)
                 {
-                    response = _packageService.GetConsignLabels(sessionId, packageIds, mode);
+                    response = _packageService.GetConsignLabels(req.sessionId, req.packageIds, req.mode);
                 }
-                return Ok(response);
+                if (response.Error == null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(response); 
+                }
 
             }
             catch (Exception ex)

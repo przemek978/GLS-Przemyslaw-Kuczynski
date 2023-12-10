@@ -32,11 +32,12 @@ namespace GlsAPI.Repository
         public AuthResponse Login(User user)
         {
             AuthResponse response = new AuthResponse();
-            var session = _dBContext.Sessions.ToList().Where(s => s.UserId == user.Id && s.IsActive);
-            if (session.Any())
+            var session = _dBContext.Sessions.FirstOrDefault(s => s.UserId == user.Id && s.IsActive);
+            if (session != null)
             {
-                response.Error = _dBContext.Errors.FirstOrDefault(e => e.Name.Equals("err_sess_create_problem"));
+                response.session = session.Id;
                 return response;
+                //response.Error = _dBContext.Errors.FirstOrDefault(e => e.Name.Equals("err_sess_create_problem"));
             }
             if (user.IsBlocked)
             {

@@ -132,7 +132,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
 
-}
+    }
 }
 
 // Configure the HTTP request pipeline.

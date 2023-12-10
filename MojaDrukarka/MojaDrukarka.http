@@ -1,0 +1,6 @@
+@MojaDrukarka_HostAddress = http://localhost:5080
+
+GET {{MojaDrukarka_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

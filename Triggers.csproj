@@ -9,8 +9,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="API\**" />
+    <Compile Remove="MojaDrukarka\**" />
     <EmbeddedResource Remove="API\**" />
+    <EmbeddedResource Remove="MojaDrukarka\**" />
     <None Remove="API\**" />
+    <None Remove="MojaDrukarka\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />

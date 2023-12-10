@@ -14,16 +14,20 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using System.Net.Http.Json;
+using Triggers.Services;
 
 namespace GLS_Przemyslaw_Kuczynski
 {
     public class HttpTrigger
     {
         private readonly ILogger _logger;
+        private readonly IDataService _dataService;
 
-        public HttpTrigger(ILoggerFactory loggerFactory)
+        public HttpTrigger(ILoggerFactory loggerFactory, IDataService dataService)
         {
             _logger = loggerFactory.CreateLogger<HttpTrigger>();
+            _dataService = dataService; 
         }
 
         [Function("HttpTrigger")]
@@ -33,28 +37,8 @@ namespace GLS_Przemyslaw_Kuczynski
             try
             {
                 _logger.LogInformation("C# HTTP trigger function processed a request.");
-                //var response = req.CreateResponse(HttpStatusCode.OK);
-
-                //var packages = _dbContext.Packages.ToList();
-
-                //var packagesNumbers = new List<string>();
-                //foreach (var package in packages)
-                //{
-                //    packagesNumbers.Add($"Package ID: {package.Id}, Tracking Number: {package.PackageNumber}");
-                //}
-
-                //// Wyœlij etykiety do drukarki
-                //var printerUrl = "https://moja-drukarka.pl/print";
-                //var result = await SendLabelsToPrinterAsync(printerUrl, packagesNumbers);
-
-                //if (result)
-                //{
-                //    return new OkObjectResult("Labels sent to printer successfully.");
-                //}
-                //else
-                //{
-                //    return new BadRequestObjectResult("Failed to send labels to printer.");
-                //}
+                
+                
 
             }
             catch (Exception ex)
