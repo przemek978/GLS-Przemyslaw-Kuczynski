@@ -19,7 +19,7 @@ namespace GLS_Przemyslaw_Kuczynski
         }
 
         [Function("TimerTrigger")]
-        public async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 */10 * * * *")] TimerInfo myTimer)
         {
             try
             {

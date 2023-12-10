@@ -1,8 +1,10 @@
 ﻿using Google.Protobuf.Compiler;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
+using System.Text;
 using System.Text.Json.Nodes;
 using Triggers.Data;
 using Triggers.Dto;
@@ -15,7 +17,7 @@ namespace Triggers.Services
         private readonly ILogger _logger;
         private readonly DBContext _dbContext;
         private string apiUrl = "https://localhost:44339/api/";
-        private string printerUrl = "https://localhost:44304/print";
+        private string printerUrl = "https://localhost:44304/";
 
         public DataService(ILoggerFactory loggerFactory, DBContext dBContext)
         {
@@ -52,7 +54,7 @@ namespace Triggers.Services
             }
             catch (Exception ex)
             {
-                _logger.LogInformation("Błąd w trakcie wysyłania żądania: " + ex.Message);
+                _logger.LogError(ex.Message);
             }
             return Guid.Empty;
         }
@@ -79,7 +81,7 @@ namespace Triggers.Services
             }
             catch (Exception ex)
             {
-                _logger.LogInformation("Błąd w trakcie wysyłania żądania: " + ex.Message);
+                _logger.LogError(ex.Message);
             }
             return null;
         }
@@ -114,7 +116,7 @@ namespace Triggers.Services
             }
             catch (Exception ex)
             {
-                _logger.LogInformation("Błąd w trakcie wysyłania żądania: " + ex.Message);
+                _logger.LogError(ex.Message);
             }
             return null;
         }
@@ -122,12 +124,12 @@ namespace Triggers.Services
         public void InsertLabels(List<int> ids, List<string> labels)
         {
             var labelsFromDb = _dbContext.Labels.ToList();
-            foreach (var label in labels)
+            for (int i =0; i<labels.Count; i++)
             {
-                bool labelExists = labelsFromDb.Any(dbLabel => dbLabel.LabelFile == label);
+                bool labelExists = labelsFromDb.Any(dbLabel => dbLabel.PackageId == ids[i]);
                 if (!labelExists)
                 {
-                    _dbContext.Labels.Add(new Models.Label { LabelFile = label });
+                    _dbContext.Labels.Add(new Models.Label {PackageId = ids[i], LabelFile = labels[i] });
                 }
             }
             _dbContext.SaveChanges();
@@ -157,6 +159,52 @@ namespace Triggers.Services
             {
                 _logger.LogInformation($"Błąd w żądaniu. Kod odpowiedzi: {response.StatusCode}");
             }
+        }
+
+        public string Print()
+        {
+            try
+            {
+                int sendCount = 0;
+                var labels = _dbContext.Labels.Where(l => !l.IsPrinted).Take(10).ToList();
+                int labelsCount = labels.Count();
+                if (labels.Any())
+                {
+                    using (var printerClient = new RestClient(printerUrl))
+                    {
+                        foreach (var label in labels)
+                        {
+                            using (var labelStream = new MemoryStream(Encoding.UTF8.GetBytes(label.LabelFile)))
+                            {
+                                var labelFile = new FormFile(labelStream, 0, labelStream.Length, "file", $"label {label.PackageId}.pdf");
+
+                                var request = new RestRequest("print", Method.Post);
+                                request.AddFile("file", labelStream.ToArray(), "label.pdf");
+
+                                var response = printerClient.Execute(request);
+                                if (response.IsSuccessful)
+                                {
+                                    label.IsPrinted = true;
+                                    sendCount++;
+                                }
+                                else
+                                {
+                                    _logger.LogInformation($"Błąd w żądaniu. Kod odpowiedzi: {response.StatusCode}");
+                                }
+                            }
+                        }
+                        _logger.LogInformation($"Wydrukowano {sendCount} z {labelsCount}");
+                        _dbContext.SaveChanges();
+                        return $"Wydrukowano {sendCount} z {labelsCount}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            return "Nie pobrano żadnej etykiety";
+
         }
     }
 }

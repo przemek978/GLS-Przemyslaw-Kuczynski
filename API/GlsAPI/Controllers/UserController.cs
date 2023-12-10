@@ -31,7 +31,7 @@ namespace GlsAPI.Controllers
             }
             catch (Exception ex)
             {
-                return null;
+                return StatusCode(500, $"Wystąpił błąd: {ex.Message}");
             }
         }
 
@@ -50,7 +50,7 @@ namespace GlsAPI.Controllers
             }
             catch (Exception ex)
             {
-                return null;
+                return StatusCode(500, $"Wystąpił błąd: {ex.Message}");
             }
         }
     }

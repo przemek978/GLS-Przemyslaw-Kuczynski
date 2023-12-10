@@ -16,6 +16,7 @@ namespace Triggers.Services
         Task<List<string>> GetLabels(Guid sessionId, List<int> packageIds, string mode);
         void InsertLabels(List<int> ids, List<string> labels);
         bool LabelCheck(int labeledId);
+        string Print();
         Task Logout();
     }
 }

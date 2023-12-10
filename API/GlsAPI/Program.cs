@@ -50,22 +50,22 @@ using (var scope = app.Services.CreateScope())
                 new Customer
                 {
                     Name1 = "Jan",
+                    Name2 = "Kowalski",
                     Country = "PL",
                     ZipCode = "00-001",
                     City = "Warszawa",
                     Street = "ul. Prosta",
                     Phone = "123-456-789",
-                    Contact = "Jan Kowalski"
                 },
                 new Customer
                 {
                     Name1 = "Anna",
+                    Name2 = "Nowak",
                     Country = "PL",
                     ZipCode = "50-001",
                     City = "Wroc³aw",
                     Street = "ul. Krótka",
                     Phone = "987-654-321",
-                    Contact = "Anna Nowak"
                 }
             };
             newUser.PasswordHash();
@@ -131,7 +131,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-
+        
     }
 }
 

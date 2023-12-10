@@ -31,45 +31,20 @@ namespace GLS_Przemyslaw_Kuczynski
         }
 
         [Function("HttpTrigger")]
-        public async Task<IActionResult> Run(
+        public async Task<ActionResult<string>> Run(
            [HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequestData req)
         {
             try
             {
-                _logger.LogInformation("C# HTTP trigger function processed a request.");
-                
-                
-
+               var message = _dataService.Print();
+               _logger.LogInformation(message);
+               return new OkObjectResult(message);
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex.Message);
             }
             return null;
-        }
-
-        private async Task<bool> SendLabelsToPrinterAsync(string printerUrl, List<string> labels)
-        {
-            try
-            {
-                using (var client = new HttpClient())
-                {
-                    // Ustawienia nag³ówków dla zapytania POST
-                    var content = new StringContent(JsonConvert.SerializeObject(labels), Encoding.UTF8, "application/json");
-
-                    // Wyœlij etykiety do drukarki za pomoc¹ zapytania POST
-                    var response = await client.PostAsync(printerUrl, content);
-
-                    // SprawdŸ, czy zapytanie zakoñczy³o siê sukcesem
-                    return response.IsSuccessStatusCode;
-                }
-            }
-            catch (Exception ex)
-            {
-                // Logowanie ewentualnych b³êdów
-                _logger.LogError($"Error sending labels to printer: {ex.Message}");
-                return false;
-            }
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Triggers.Models
     public class Label
     {
         public int Id { get; set; }
-        //public int packageId { get; set; }  
+        public int PackageId { get; set; }  
         public string LabelFile { get; set; }
         public bool IsPrinted { get; set; } = false;
     }

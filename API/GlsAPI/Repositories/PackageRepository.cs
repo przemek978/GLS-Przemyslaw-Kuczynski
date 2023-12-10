@@ -6,10 +6,13 @@ using GlsAPI.Models.Responses;
 using GlsAPI.Models.Responses.Items;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.qrcode;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
+using ZXing;
+using ZXing.Common;
 using Document = iTextSharp.text.Document;
 
 namespace GlsAPI.Repository
@@ -107,7 +110,7 @@ namespace GlsAPI.Repository
                 response.Error = GetError("err_sess_expired");
                 return response;
             }
-            var packages = _dBContext.Packages.Where(p => packageIds.Contains(p.Id)).Include(p=> p.Recipient).ToList();
+            var packages = _dBContext.Packages.Where(p => packageIds.Contains(p.Id)).Include(p=> p.Recipient).OrderBy(p => p.Id).ToList();
             if (packages.Count < 1 || packages == null)
             {
                 response.Error = GetError("err_cons_not_found");
